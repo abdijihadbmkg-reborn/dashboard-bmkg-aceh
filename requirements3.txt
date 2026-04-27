@@ -1,11 +1,13 @@
 streamlit
 pandas
-geopandas
-shapely
 numpy
 boto3
+botocore
 satpy
 pyresample
 matplotlib
 cartopy
 plotly
+shapely
+geopandas
+scipy
