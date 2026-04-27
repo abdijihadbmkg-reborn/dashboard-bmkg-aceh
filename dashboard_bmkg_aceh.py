@@ -449,5 +449,6 @@ elif pilihan_menu == "⚡ Cuaca Ekstrem (Nowcasting)":
     else:
         st.error(f"Gagal memuat citra. Error: {error_msg}")
 
-    # Auto refresh khusus Cuaca tiap 10 Menit menggunakan injeksi HTML
-    st.components.v1.html("<script>setTimeout(function(){window.parent.location.reload();}, 600000);</script>", height=0)
+    # Auto refresh khusus Cuaca tiap 10 Menit (Tanpa menghapus memori login)
+    time.sleep(600)
+    st.rerun()
