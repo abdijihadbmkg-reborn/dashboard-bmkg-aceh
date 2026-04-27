@@ -29,35 +29,46 @@ matplotlib.use('Agg')
 # ==========================================
 st.set_page_config(layout="wide", page_title="Dashboard Multi-Bencana BMKG", page_icon="🌍")
 
-# --- SISTEM KEAMANAN (LOGIN) ---
+# --- SISTEM KEAMANAN (LOGIN) ANTI-ERROR ---
 def check_password():
     """Mengembalikan True jika password benar."""
     def password_entered():
-        if st.session_state["password"] == st.secrets["password_rahasia"]:
+        # Menggunakan .get() agar kebal dari KeyError (aman dari klik ganda)
+        tebakan_user = st.session_state.get("password", "")
+        # Mencoba membaca dari secrets, jika gagal akan menggunakan "bmkgaceh123"
+        kunci_asli = st.secrets.get("password_rahasia", "bmkgaceh123")
+        
+        if tebakan_user == kunci_asli:
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Hapus password dari memori
+            # Hapus memori hanya jika memang masih ada
+            if "password" in st.session_state:
+                del st.session_state["password"]  
         else:
             st.session_state["password_correct"] = False
 
-    if "password_correct" not in st.session_state:
-        st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password", on_change=password_entered, key="password")
-        return False
-    elif not st.session_state["password_correct"]:
-        st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password", on_change=password_entered, key="password")
+    # Jika sudah berhasil login sebelumnya, langsung tembus
+    if st.session_state.get("password_correct", False):
+        return True
+
+    st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password", on_change=password_entered, key="password")
+    
+    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
         st.error("❌ Password salah. Silakan coba lagi.")
-        return False
-    return True
+    
+    return False
 
 # JIKA PASSWORD SALAH/BELUM DIISI, STOP KODE DI SINI (Dasbor tidak dimuat)
 if not check_password():
     st.stop()
 
+# --- CSS Styling Dasar ---
 st.markdown("""
     <style>
     .reportview-container .main .block-container{ padding-top: 1rem; }
     [data-testid="stPlotlyChart"] { position: relative; }
     </style>
     """, unsafe_allow_html=True)
+
 
 # ==========================================
 # 2. FUNGSI-FUNGSI UTILITY (GEMPA & CUACA)
@@ -84,7 +95,7 @@ def load_data_gempa():
         st.error(f"Gagal memuat data gempa: {e}")
         return pd.DataFrame()
 
-# -- FUNGSI CUACA (DIKEMBALIKAN KE VERSI ASLI NOWCASTING.PY ANDA) --
+# -- FUNGSI CUACA --
 THRESHOLD_TEMP = -33 
 RADIUS_MELUAS = 0.15 
 DURASI_PERINGATAN = 2 
@@ -323,6 +334,7 @@ if pilihan_menu == "📡 Gempa Bumi Real-Time":
             st.write(f"• Dirasakan: **{dirasakan_count}** ({persen_dirasakan:.1f}%)")
             st.write(f"• Tidak Dirasakan: **{total - dirasakan_count}**")
 
+    # Auto refresh khusus Gempa tiap 30 Detik
     time.sleep(30)
     st.rerun()
 
