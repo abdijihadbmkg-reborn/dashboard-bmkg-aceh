@@ -29,6 +29,29 @@ matplotlib.use('Agg')
 # ==========================================
 st.set_page_config(layout="wide", page_title="Dashboard Multi-Bencana BMKG", page_icon="🌍")
 
+# --- SISTEM KEAMANAN (LOGIN) ---
+def check_password():
+    """Mengembalikan True jika password benar."""
+    def password_entered():
+        if st.session_state["password"] == st.secrets["password_rahasia"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Hapus password dari memori
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password", on_change=password_entered, key="password")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password", on_change=password_entered, key="password")
+        st.error("❌ Password salah. Silakan coba lagi.")
+        return False
+    return True
+
+# JIKA PASSWORD SALAH/BELUM DIISI, STOP KODE DI SINI (Dasbor tidak dimuat)
+if not check_password():
+    st.stop()
+
 st.markdown("""
     <style>
     .reportview-container .main .block-container{ padding-top: 1rem; }
