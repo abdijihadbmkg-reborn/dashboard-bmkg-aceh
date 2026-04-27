@@ -31,30 +31,23 @@ st.set_page_config(layout="wide", page_title="Dashboard Multi-Bencana BMKG", pag
 
 # --- SISTEM KEAMANAN (LOGIN) ANTI-ERROR ---
 def check_password():
-    """Mengembalikan True jika password benar."""
-    def password_entered():
-        # Menggunakan .get() agar kebal dari KeyError (aman dari klik ganda)
-        tebakan_user = st.session_state.get("password", "")
-        # Mencoba membaca dari secrets, jika gagal akan menggunakan "bmkgaceh123"
-        kunci_asli = st.secrets.get("password_rahasia", "bmkgaceh123")
-        
-        if tebakan_user == kunci_asli:
-            st.session_state["password_correct"] = True
-            # Hapus memori hanya jika memang masih ada
-            if "password" in st.session_state:
-                del st.session_state["password"]  
-        else:
-            st.session_state["password_correct"] = False
-
-    # Jika sudah berhasil login sebelumnya, langsung tembus
+    # 1. Jika sudah berhasil login sebelumnya, langsung tembus
     if st.session_state.get("password_correct", False):
         return True
 
-    st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password", on_change=password_entered, key="password")
+    # 2. Menampilkan kotak input (Tanpa callback rumit)
+    tebakan_user = st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password")
     
-    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+    # 3. Kunci jawaban (ambil dari rahasia, atau gunakan cadangan)
+    kunci_asli = st.secrets.get("password_rahasia", "bmkgaceh123")
+    
+    # 4. Pengecekan
+    if tebakan_user == kunci_asli:
+        st.session_state["password_correct"] = True
+        st.rerun() # Refresh seketika agar langsung masuk ke dalam Dasbor
+    elif tebakan_user != "":
         st.error("❌ Password salah. Silakan coba lagi.")
-    
+        
     return False
 
 # JIKA PASSWORD SALAH/BELUM DIISI, STOP KODE DI SINI (Dasbor tidak dimuat)
