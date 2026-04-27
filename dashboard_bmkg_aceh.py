@@ -333,8 +333,6 @@ if pilihan_menu == "📡 Gempa Bumi Real-Time":
     else:
         st.experimental_rerun()
 
-elif pilihan_menu == "⚡ Cu চরম (Nowcasting)": # Typo check: it's "Cuaca Ekstrem (Nowcasting)"
-# Wait! Fixing the string literal in script.
 elif pilihan_menu == "⚡ Cuaca Ekstrem (Nowcasting)":
     st.title("⚡ Monitoring dan Peringatan Dini Cuaca Ekstrem Aceh")
 
