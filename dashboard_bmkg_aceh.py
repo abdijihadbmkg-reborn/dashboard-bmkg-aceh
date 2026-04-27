@@ -39,7 +39,10 @@ def check_password():
     tebakan_user = st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password")
     
     # 3. Kunci jawaban (ambil dari rahasia, atau gunakan cadangan)
-    kunci_asli = st.secrets.get("password_rahasia", "bmkgaceh123")
+    try:
+        kunci_asli = st.secrets["password_rahasia"]
+    except:
+        kunci_asli = "bmkgaceh123"
     
     # 4. Pengecekan
     if tebakan_user == kunci_asli:
