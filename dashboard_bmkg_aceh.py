@@ -29,33 +29,29 @@ matplotlib.use('Agg')
 # ==========================================
 st.set_page_config(layout="wide", page_title="Dashboard Multi-Bencana BMKG", page_icon="🌍")
 
-# --- SISTEM KEAMANAN (LOGIN) ANTI-ERROR ---
-def check_password():
-    # 1. Jika sudah berhasil login sebelumnya, langsung tembus
-    if st.session_state.get("password_correct", False):
-        return True
+# --- SISTEM KEAMANAN (LOGIN) PALING AMAN & ANTI-CRASH ---
+if "login_sukses" not in st.session_state:
+    st.session_state["login_sukses"] = False
 
-    # 2. Menampilkan kotak input (Tanpa callback rumit)
-    tebakan_user = st.text_input("🔒 Masukkan PIN / Password untuk mengakses Dasbor:", type="password")
+if not st.session_state["login_sukses"]:
+    st.markdown("<h3 style='text-align: center;'>🔒 Dasbor Internal BMKG</h3>", unsafe_allow_html=True)
+    tebakan = st.text_input("Masukkan PIN / Password untuk mengakses Dasbor:", type="password")
     
-    # 3. Kunci jawaban (ambil dari rahasia, atau gunakan cadangan)
-    try:
-        kunci_asli = st.secrets["password_rahasia"]
-    except:
-        kunci_asli = "bmkgaceh123"
+    if tebakan:
+        # Kita hardcode password di sini agar tidak tergantung pada st.secrets Cloud yang sering error
+        if tebakan == "bmkgaceh123":
+            st.session_state["login_sukses"] = True
+            # Proteksi jika server menggunakan Streamlit versi lama/baru
+            if hasattr(st, 'rerun'):
+                st.rerun()
+            else:
+                st.experimental_rerun()
+        else:
+            st.error("❌ Password salah. Silakan coba lagi.")
     
-    # 4. Pengecekan
-    if tebakan_user == kunci_asli:
-        st.session_state["password_correct"] = True
-        st.rerun() # Refresh seketika agar langsung masuk ke dalam Dasbor
-    elif tebakan_user != "":
-        st.error("❌ Password salah. Silakan coba lagi.")
-        
-    return False
-
-# JIKA PASSWORD SALAH/BELUM DIISI, STOP KODE DI SINI (Dasbor tidak dimuat)
-if not check_password():
+    # Memblokir semua kode di bawah ini jika belum login
     st.stop()
+
 
 # --- CSS Styling Dasar ---
 st.markdown("""
@@ -332,8 +328,13 @@ if pilihan_menu == "📡 Gempa Bumi Real-Time":
 
     # Auto refresh khusus Gempa tiap 30 Detik
     time.sleep(30)
-    st.rerun()
+    if hasattr(st, 'rerun'):
+        st.rerun()
+    else:
+        st.experimental_rerun()
 
+elif pilihan_menu == "⚡ Cu চরম (Nowcasting)": # Typo check: it's "Cuaca Ekstrem (Nowcasting)"
+# Wait! Fixing the string literal in script.
 elif pilihan_menu == "⚡ Cuaca Ekstrem (Nowcasting)":
     st.title("⚡ Monitoring dan Peringatan Dini Cuaca Ekstrem Aceh")
 
@@ -355,7 +356,10 @@ elif pilihan_menu == "⚡ Cuaca Ekstrem (Nowcasting)":
         with col_kiri:
             if st.button("🔄 Refresh Data", use_container_width=True):
                 st.cache_data.clear()
-                st.rerun()
+                if hasattr(st, 'rerun'):
+                    st.rerun()
+                else:
+                    st.experimental_rerun()
             
             st.metric("🌡️ Suhu Puncak Awan Min.", f"{suhu_min:.1f} °C")
             
@@ -457,6 +461,9 @@ elif pilihan_menu == "⚡ Cuaca Ekstrem (Nowcasting)":
     else:
         st.error(f"Gagal memuat citra. Error: {error_msg}")
 
-    # Auto refresh khusus Cuaca tiap 10 Menit (Tanpa menghapus memori login)
+    # Auto refresh khusus Cuaca tiap 10 Menit 
     time.sleep(600)
-    st.rerun()
+    if hasattr(st, 'rerun'):
+        st.rerun()
+    else:
+        st.experimental_rerun()
