@@ -11,3 +11,4 @@ plotly
 shapely
 geopandas
 scipy
+s3fs
