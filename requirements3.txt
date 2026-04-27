@@ -1,0 +1,11 @@
+streamlit
+pandas
+geopandas
+shapely
+numpy
+boto3
+satpy
+pyresample
+matplotlib
+cartopy
+plotly
